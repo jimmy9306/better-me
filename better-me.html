@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="더 나은 나">
+<title>더 나은 나</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f2f2f7;min-height:100vh}
+.app{max-width:420px;margin:0 auto;padding:0 0 80px}
+.header{background:#fff;border-bottom:0.5px solid #c6c6c8;padding:16px;text-align:center;position:sticky;top:0;z-index:10}
+.header h1{font-size:17px;font-weight:500;color:#000}
+.header .date{font-size:12px;color:#8e8e93;margin-top:2px}
+.nav{display:flex;background:#fff;border-top:0.5px solid #c6c6c8;position:fixed;bottom:0;width:100%;max-width:420px;z-index:10}
+.nav button{flex:1;padding:10px 4px 8px;border:none;background:transparent;cursor:pointer;font-size:10px;color:#8e8e93;display:flex;flex-direction:column;align-items:center;gap:3px}
+.nav button.active{color:#000}
+.nav button i{font-size:20px}
+.section{display:none;padding:10px 8px}
+.section.active{display:block}
+.card{background:#fff;border:0.5px solid #c6c6c8;border-radius:12px;padding:16px;margin-bottom:12px}
+.card-title{font-size:13px;color:#8e8e93;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.row:last-child{margin-bottom:0}
+.label{font-size:14px;color:#000}
+.sub{font-size:12px;color:#8e8e93;margin-top:2px}
+input[type=checkbox]{width:22px;height:22px;cursor:pointer;accent-color:#333}
+.btn{border:0.5px solid #c6c6c8;border-radius:8px;padding:8px 14px;font-size:13px;background:#fff;color:#000;cursor:pointer;font-family:inherit}
+.btn:active{transform:scale(0.98)}
+.btn-primary{background:#000;color:#fff;border-color:#000}
+.btn-full{width:100%;padding:12px;font-size:14px;margin-top:8px}
+.timer-display{font-size:36px;font-weight:500;text-align:center;padding:16px 0;letter-spacing:2px;color:#000}
+.book-input{width:100%;border:0.5px solid #c6c6c8;border-radius:8px;padding:8px 12px;font-size:14px;font-family:inherit;background:#fff;color:#000;margin-bottom:8px}
+textarea{width:100%;border:0.5px solid #c6c6c8;border-radius:8px;padding:10px 12px;font-size:14px;font-family:inherit;background:#fff;color:#000;resize:none;line-height:1.7}
+.yt-link{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid #c6c6c8;text-decoration:none;color:#000}
+.yt-link:last-child{border-bottom:none}
+.yt-info{flex:1}
+.yt-name{font-size:14px;font-weight:500}
+.yt-desc{font-size:12px;color:#8e8e93;margin-top:2px}
+.news-btn{display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px;border:0.5px solid #c6c6c8;border-radius:12px;background:#fff;cursor:pointer;color:#000;font-family:inherit;margin-bottom:10px}
+.news-btn:active{transform:scale(0.98)}
+.news-time{font-size:12px;color:#8e8e93;margin-top:2px}
+.select-row{display:flex;gap:8px;margin-bottom:8px}
+.select-label{font-size:12px;color:#8e8e93;margin-bottom:4px}
+select{flex:1;border:0.5px solid #c6c6c8;border-radius:8px;padding:8px;font-size:13px;background:#fff;color:#000;font-family:inherit;width:100%}
+.divider{height:0.5px;background:#c6c6c8;margin:12px 0}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.cal-nav span{font-size:14px;font-weight:500;color:#000}
+.cal-nav button{border:none;background:transparent;cursor:pointer;font-size:20px;color:#8e8e93;padding:4px 10px;line-height:1}
+.cal-wrap{width:100%;overflow:hidden}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;width:100%}
+.cal-dow{font-size:11px;color:#8e8e93;text-align:center;padding:4px 0 6px;font-weight:600}
+.cal-dow:first-child{color:#e05c5c}
+.cal-dow:last-child{color:#5c8ae0}
+.cal-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:6px;padding:5px 1px;background:#f2f2f7;min-height:42px;cursor:pointer}
+.cal-cell.empty-cell{background:transparent;cursor:default}
+.cal-cell.today{border:1.5px solid #000}
+.cal-cell.selected{background:#e0e0e5}
+.cal-cell .day-num{font-size:11px;color:#000;line-height:1.3}
+.cal-cell .day-mark{font-size:13px;line-height:1.2;margin-top:1px}
+.cal-cell.sun .day-num{color:#e05c5c}
+.cal-cell.sat .day-num{color:#5c8ae0}
+.cal-cell.other-month{opacity:0.2}
+.day-detail{background:#f2f2f7;border-radius:8px;padding:12px 14px;margin-top:12px;font-size:13px;color:#000;line-height:1.7;display:none;border-left:3px solid #c6c6c8}
+.day-detail.visible{display:block}
+.brain-step-btns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1>더 나은 나</h1>
+    <div class="date" id="today-date"></div>
+  </div>
+
+  <div class="section active" id="sec-bible">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-bookmark"></i> 어디까지 읽었나요?</div>
+      <div class="select-label">📖 시작</div>
+      <div class="select-row">
+        <div style="flex:1"><select id="bible-from-book" onchange="updateFromChapters()"></select></div>
+        <div style="flex:1"><select id="bible-from-chap"></select></div>
+      </div>
+      <div class="divider"></div>
+      <div class="select-label">📗 끝</div>
+      <div class="select-row">
+        <div style="flex:1"><select id="bible-to-book" onchange="updateToChapters()"></select></div>
+        <div style="flex:1"><select id="bible-to-chap"></select></div>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="saveBiblePos()">저장</button>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-calendar"></i> 기록</div>
+      <div class="cal-nav">
+        <button onclick="changeMonth('bible',-1)">‹</button>
+        <span id="bible-cal-label"></span>
+        <button onclick="changeMonth('bible',1)">›</button>
+      </div>
+      <div class="cal-wrap"><div class="cal-grid" id="bible-cal"></div></div>
+      <div class="day-detail" id="bible-detail"></div>
+    </div>
+  </div>
+
+  <div class="section" id="sec-exercise">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-run"></i> 오늘의 운동</div>
+      <div class="row"><div class="label">가슴</div><input type="checkbox" id="ex-chest"></div>
+      <div class="row"><div class="label">등</div><input type="checkbox" id="ex-back"></div>
+      <div class="row"><div class="label">어깨</div><input type="checkbox" id="ex-shoulder"></div>
+      <div class="row"><div class="label">하체</div><input type="checkbox" id="ex-leg"></div>
+      <div class="row"><div class="label">유산소</div><input type="checkbox" id="ex-cardio"></div>
+      <button class="btn btn-primary btn-full" onclick="saveExercise()">운동 완료</button>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-calendar"></i> 기록</div>
+      <div class="cal-nav">
+        <button onclick="changeMonth('exercise',-1)">‹</button>
+        <span id="exercise-cal-label"></span>
+        <button onclick="changeMonth('exercise',1)">›</button>
+      </div>
+      <div class="cal-wrap"><div class="cal-grid" id="exercise-cal"></div></div>
+      <div class="day-detail" id="exercise-detail"></div>
+    </div>
+  </div>
+
+  <div class="section" id="sec-book">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-book-2"></i> 독서 타이머</div>
+      <input class="book-input" id="book-title" placeholder="책 제목을 입력하세요"/>
+      <div class="timer-display" id="timer-display">00:00:00</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-full" id="timer-btn" onclick="toggleTimer()" style="flex:1">시작</button>
+        <button class="btn btn-full" onclick="finishBook()" style="flex:1;background:#f2f2f7">다 읽었어요</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-calendar"></i> 기록</div>
+      <div class="cal-nav">
+        <button onclick="changeMonth('book',-1)">‹</button>
+        <span id="book-cal-label"></span>
+        <button onclick="changeMonth('book',1)">›</button>
+      </div>
+      <div class="cal-wrap"><div class="cal-grid" id="book-cal"></div></div>
+      <div class="day-detail" id="book-detail"></div>
+    </div>
+  </div>
+
+  <div class="section" id="sec-brain">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-bulb"></i> 오늘의 브레인스토밍</div>
+      <div style="margin-bottom:12px">
+        <div class="label" style="font-size:13px;margin-bottom:6px">아이디어 / 주제</div>
+        <textarea id="brain-idea" rows="6" placeholder="오늘 떠오른 아이디어를 적어보세요"></textarea>
+      </div>
+      <div style="margin-bottom:12px">
+        <div class="label" style="font-size:13px;margin-bottom:6px">진행 단계</div>
+        <div class="brain-step-btns">
+          <button class="btn" onclick="addStep('리서치')" style="font-size:12px;padding:4px 10px">+ 리서치</button>
+          <button class="btn" onclick="addStep('기획')" style="font-size:12px;padding:4px 10px">+ 기획</button>
+          <button class="btn" onclick="addStep('실행')" style="font-size:12px;padding:4px 10px">+ 실행</button>
+          <button class="btn" onclick="addStep('검토')" style="font-size:12px;padding:4px 10px">+ 검토</button>
+        </div>
+        <textarea id="brain-steps" rows="5" placeholder="어떤 단계를 거쳤나요?"></textarea>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="saveBrain()">기록 저장</button>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-calendar"></i> 기록</div>
+      <div class="cal-nav">
+        <button onclick="changeMonth('brain',-1)">‹</button>
+        <span id="brain-cal-label"></span>
+        <button onclick="changeMonth('brain',1)">›</button>
+      </div>
+      <div class="cal-wrap"><div class="cal-grid" id="brain-cal"></div></div>
+      <div class="day-detail" id="brain-detail"></div>
+    </div>
+  </div>
+
+  <div class="section" id="sec-news">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-news"></i> 뉴스 브리핑</div>
+      <div style="font-size:12px;color:#8e8e93;margin-bottom:12px">버튼을 누르면 클로드에게 바로 연결됩니다</div>
+      <button class="news-btn" onclick="openNews('morning')">
+        <div><div style="font-size:14px;font-weight:500">🌅 오전 뉴스 브리핑</div><div class="news-time">부동산 · 금리 · 반도체 · 기술주</div></div>
+        <i class="ti ti-external-link" style="font-size:18px;color:#8e8e93"></i>
+      </button>
+      <button class="news-btn" onclick="openNews('evening')">
+        <div><div style="font-size:14px;font-weight:500">🌙 저녁 뉴스 브리핑</div><div class="news-time">오전 이슈 업데이트 포함</div></div>
+        <i class="ti ti-external-link" style="font-size:18px;color:#8e8e93"></i>
+      </button>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-brand-youtube" style="color:#FF0000"></i> 영국식 영어 공부</div>
+      <a class="yt-link" href="https://www.youtube.com/@EnglishwithLucy" target="_blank">
+        <i class="ti ti-brand-youtube" style="color:#FF0000;font-size:24px"></i>
+        <div class="yt-info"><div class="yt-name">English with Lucy</div><div class="yt-desc">발음 · 관용표현 · 일상 회화</div></div>
+        <i class="ti ti-chevron-right" style="font-size:16px;color:#8e8e93"></i>
+      </a>
+      <a class="yt-link" href="https://www.youtube.com/@bbclearningenglish" target="_blank">
+        <i class="ti ti-brand-youtube" style="color:#FF0000;font-size:24px"></i>
+        <div class="yt-info"><div class="yt-name">BBC Learning English</div><div class="yt-desc">문법 · 발음 · 어휘 · 시사</div></div>
+        <i class="ti ti-chevron-right" style="font-size:16px;color:#8e8e93"></i>
+      </a>
+      <a class="yt-link" href="https://www.youtube.com/@Duncaninchina" target="_blank">
+        <i class="ti ti-brand-youtube" style="color:#FF0000;font-size:24px"></i>
+        <div class="yt-info"><div class="yt-name">English Addict with Mr. Duncan</div><div class="yt-desc">주 3회 라이브 · 영국 억양</div></div>
+        <i class="ti ti-chevron-right" style="font-size:16px;color:#8e8e93"></i>
+      </a>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <button class="active" onclick="showSection('bible',this)"><i class="ti ti-book"></i>성경</button>
+    <button onclick="showSection('exercise',this)"><i class="ti ti-run"></i>운동</button>
+    <button onclick="showSection('book',this)"><i class="ti ti-book-2"></i>독서</button>
+    <button onclick="showSection('brain',this)"><i class="ti ti-bulb"></i>브레인</button>
+    <button onclick="showSection('news',this)"><i class="ti ti-news"></i>뉴스</button>
+  </nav>
+</div>
+
+<script>
+var BIBLE={
+  '창세기':50,'출애굽기':40,'레위기':27,'민수기':36,'신명기':34,'여호수아':24,'사사기':21,'룻기':4,
+  '사무엘상':31,'사무엘하':24,'열왕기상':22,'열왕기하':25,'역대상':29,'역대하':36,'에스라':10,
+  '느헤미야':13,'에스더':10,'욥기':42,'시편':150,'잠언':31,'전도서':12,'아가':8,'이사야':66,
+  '예레미야':52,'예레미야애가':5,'에스겔':48,'다니엘':12,'호세아':14,'요엘':3,'아모스':9,
+  '오바댜':1,'요나':4,'미가':7,'나훔':3,'하박국':3,'스바냐':3,'학개':2,'스가랴':14,'말라기':4,
+  '마태복음':28,'마가복음':16,'누가복음':24,'요한복음':21,'사도행전':28,'로마서':16,
+  '고린도전서':16,'고린도후서':13,'갈라디아서':6,'에베소서':6,'빌립보서':4,'골로새서':4,
+  '데살로니가전서':5,'데살로니가후서':3,'디모데전서':6,'디모데후서':4,'디도서':3,'빌레몬서':1,
+  '히브리서':13,'야고보서':5,'베드로전서':5,'베드로후서':3,'요한일서':5,'요한이서':1,'요한삼서':1,
+  '유다서':1,'요한계시록':22
+};
+var BIBLE_KEYS=Object.keys(BIBLE);
+var EX_LIST=[{id:'chest',label:'가슴'},{id:'back',label:'등'},{id:'shoulder',label:'어깨'},{id:'leg',label:'하체'},{id:'cardio',label:'유산소'}];
+var TABS=['bible','exercise','book','brain'];
+var calState={};
+TABS.forEach(function(t){var n=new Date();calState[t]={y:n.getFullYear(),m:n.getMonth(),selected:null};});
+var timerInterval=null,timerSec=0,timerRunning=false;
+
+function getKey(k){return 'betterme_'+k;}
+function save(k,v){try{localStorage.setItem(getKey(k),JSON.stringify(v));}catch(e){}}
+function load(k,def){try{var v=localStorage.getItem(getKey(k));return v?JSON.parse(v):def;}catch(e){return def;}}
+function todayStr(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function fmtTime(s){var h=Math.floor(s/3600);var m=Math.floor((s%3600)/60);var sc=s%60;return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(sc).padStart(2,'0');}
+
+function showSection(id,btn){
+  document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});
+  document.querySelectorAll('.nav button').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('sec-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+function setDate(){
+  var d=new Date();var days=['일','월','화','수','목','금','토'];
+  document.getElementById('today-date').textContent=d.getFullYear()+'년 '+(d.getMonth()+1)+'월 '+d.getDate()+'일 ('+days[d.getDay()]+')';
+}
+
+function buildBookOptions(){return BIBLE_KEYS.map(function(b){return '<option value="'+b+'">'+b+'</option>';}).join('');}
+function buildChapOptions(book,sel){
+  var max=BIBLE[book]||1;var html='';
+  for(var i=1;i<=max;i++)html+='<option value="'+i+'"'+(i==sel?' selected':'')+'>'+i+'장</option>';
+  return html;
+}
+function updateFromChapters(){document.getElementById('bible-from-chap').innerHTML=buildChapOptions(document.getElementById('bible-from-book').value,1);}
+function updateToChapters(){document.getElementById('bible-to-chap').innerHTML=buildChapOptions(document.getElementById('bible-to-book').value,1);}
+function initBibleSelects(){
+  var opts=buildBookOptions();
+  document.getElementById('bible-from-book').innerHTML=opts;
+  document.getElementById('bible-to-book').innerHTML=opts;
+  updateFromChapters();updateToChapters();
+  var pos=load('bible_pos',null);
+  if(pos){
+    if(pos.fromBook){document.getElementById('bible-from-book').value=pos.fromBook;document.getElementById('bible-from-chap').innerHTML=buildChapOptions(pos.fromBook,pos.fromChap);}
+    if(pos.toBook){document.getElementById('bible-to-book').value=pos.toBook;document.getElementById('bible-to-chap').innerHTML=buildChapOptions(pos.toBook,pos.toChap);}
+  }
+}
+function saveBiblePos(){
+  var fromBook=document.getElementById('bible-from-book').value;
+  var fromChap=document.getElementById('bible-from-chap').value;
+  var toBook=document.getElementById('bible-to-book').value;
+  var toChap=document.getElementById('bible-to-chap').value;
+  var today=todayStr();
+  var dayNum=new Date().getDate();
+  save('bible_pos',{fromBook:fromBook,fromChap:fromChap,toBook:toBook,toChap:toChap});
+  var hist=load('bible_hist',[]);
+  var msg=dayNum+'일은 '+fromBook+' '+fromChap+'장부터 '+toBook+' '+toChap+'장까지 읽었어요!';
+  var rec={date:today,done:true,fromBook:fromBook,fromChap:fromChap,toBook:toBook,toChap:toChap,msg:msg};
+  var ex=hist.findIndex(function(h){return h.date===today;});
+  if(ex>=0)hist[ex]=rec;else hist.unshift(rec);
+  save('bible_hist',hist.slice(0,365));
+  renderCal('bible');
+  alert('저장됐습니다 ✓');
+}
+
+function saveExercise(){
+  var done=EX_LIST.filter(function(e){return document.getElementById('ex-'+e.id).checked;}).map(function(e){return e.label;});
+  if(!done.length){alert('운동 항목을 하나 이상 체크해주세요');return;}
+  var today=todayStr();var dayNum=new Date().getDate();
+  var hist=load('exercise_hist',[]);
+  var msg=dayNum+'일 운동: '+done.join(', ')+'을(를) 했어요!';
+  var rec={date:today,done:true,list:done,msg:msg};
+  var ex=hist.findIndex(function(h){return h.date===today;});
+  if(ex>=0)hist[ex]=rec;else hist.unshift(rec);
+  save('exercise_hist',hist.slice(0,365));
+  EX_LIST.forEach(function(e){document.getElementById('ex-'+e.id).checked=false;});
+  renderCal('exercise');
+  alert('운동 완료 ✓');
+}
+
+function toggleTimer(){
+  var btn=document.getElementById('timer-btn');
+  if(!timerRunning){
+    timerRunning=true;btn.textContent='일시정지';
+    timerInterval=setInterval(function(){timerSec++;document.getElementById('timer-display').textContent=fmtTime(timerSec);},1000);
+  } else {timerRunning=false;btn.textContent='계속';clearInterval(timerInterval);}
+}
+function finishBook(){
+  var title=document.getElementById('book-title').value.trim();
+  if(!title){alert('책 제목을 입력하세요');return;}
+  clearInterval(timerInterval);timerRunning=false;
+  var mins=Math.floor(timerSec/60);
+  var hist=load('book_hist',[]);
+  var today=todayStr();var dayNum=new Date().getDate();
+  var msg=dayNum+'일은 「'+title+'」을(를) 읽었어요!'+(mins?' ('+mins+'분)':'');
+  var rec={date:today,title:title,time:timerSec,msg:msg};
+  var ex=hist.findIndex(function(h){return h.date===today&&h.title===title;});
+  if(ex>=0)hist[ex]=rec;else hist.unshift(rec);
+  save('book_hist',hist.slice(0,365));
+  timerSec=0;document.getElementById('timer-display').textContent='00:00:00';
+  document.getElementById('timer-btn').textContent='시작';
+  document.getElementById('book-title').value='';
+  renderCal('book');
+}
+
+function addStep(step){var ta=document.getElementById('brain-steps');ta.value=(ta.value?ta.value+' → ':'')+step;}
+function saveBrain(){
+  var idea=document.getElementById('brain-idea').value.trim();
+  if(!idea){alert('아이디어를 입력하세요');return;}
+  var steps=document.getElementById('brain-steps').value.trim();
+  var today=todayStr();var dayNum=new Date().getDate();
+  var hist=load('brain_hist',[]);
+  var msg=dayNum+'일 아이디어: '+idea+(steps?' ['+steps+']':'');
+  var rec={date:today,idea:idea,steps:steps,msg:msg};
+  var ex=hist.findIndex(function(h){return h.date===today;});
+  if(ex>=0)hist[ex]=rec;else hist.unshift(rec);
+  save('brain_hist',hist.slice(0,365));
+  document.getElementById('brain-idea').value='';
+  document.getElementById('brain-steps').value='';
+  renderCal('brain');
+  alert('저장됐습니다 ✓');
+}
+
+function getDoneMap(tab){
+  var map={};
+  if(tab==='bible'){load('bible_hist',[]).forEach(function(h){if(h.done)map[h.date]=h;});}
+  else if(tab==='exercise'){load('exercise_hist',[]).forEach(function(h){if(h.done)map[h.date]=h;});}
+  else if(tab==='book'){
+    var tmp={};
+    load('book_hist',[]).forEach(function(h){
+      if(!tmp[h.date])tmp[h.date]={date:h.date,titles:[],msgs:[]};
+      tmp[h.date].titles.push(h.title);tmp[h.date].msgs.push(h.msg);
+    });
+    Object.keys(tmp).forEach(function(k){map[k]=tmp[k];});
+  }
+  else if(tab==='brain'){load('brain_hist',[]).forEach(function(h){map[h.date]=h;});}
+  return map;
+}
+
+function renderCal(tab){
+  var y=calState[tab].y,m=calState[tab].m;
+  document.getElementById(tab+'-cal-label').textContent=y+'년 '+(m+1)+'월';
+  var grid=document.getElementById(tab+'-cal');
+  var doneMap=getDoneMap(tab);
+  var now=new Date();
+  var todayY=now.getFullYear(),todayM=now.getMonth(),todayD=now.getDate();
+  var dowLabels=['일','월','화','수','목','금','토'];
+  var html=dowLabels.map(function(d){return '<div class="cal-dow">'+d+'</div>';}).join('');
+  var firstDay=new Date(y,m,1).getDay();
+  var daysInMonth=new Date(y,m+1,0).getDate();
+  var daysInPrev=new Date(y,m,0).getDate();
+  for(var i=0;i<firstDay;i++){
+    html+='<div class="cal-cell other-month empty-cell"><span class="day-num">'+(daysInPrev-firstDay+1+i)+'</span><span class="day-mark"></span></div>';
+  }
+  for(var d=1;d<=daysInMonth;d++){
+    var dateStr=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    var dow=(firstDay+d-1)%7;
+    var isToday=(y===todayY&&m===todayM&&d===todayD);
+    var isPast=new Date(y,m,d)<new Date(todayY,todayM,todayD);
+    var isSelected=(calState[tab].selected===dateStr);
+    var hasDone=!!doneMap[dateStr];
+    var mark='',markColor='';
+    if(hasDone){mark='✓';markColor='color:#27500A';}
+    else if(isPast){mark='✗';markColor='color:#e05c5c';}
+    var cls='cal-cell';
+    if(dow===0)cls+=' sun';
+    if(dow===6)cls+=' sat';
+    if(isToday)cls+=' today';
+    if(isSelected)cls+=' selected';
+    var clickAttr=hasDone?'onclick="showDayDetail(\''+tab+'\',\''+dateStr+'\')"':'';
+    html+='<div class="'+cls+'" '+clickAttr+'><span class="day-num">'+d+'</span><span class="day-mark" style="'+markColor+'">'+mark+'</span></div>';
+  }
+  var rem=(7-(firstDay+daysInMonth)%7)%7;
+  for(var j=1;j<=rem;j++){
+    html+='<div class="cal-cell other-month empty-cell"><span class="day-num">'+j+'</span><span class="day-mark"></span></div>';
+  }
+  grid.innerHTML=html;
+  if(calState[tab].selected)showDayDetail(tab,calState[tab].selected);
+}
+
+function showDayDetail(tab,dateStr){
+  calState[tab].selected=dateStr;
+  var detail=document.getElementById(tab+'-detail');
+  var doneMap=getDoneMap(tab);
+  var rec=doneMap[dateStr];
+  var text='';
+  if(tab==='bible'&&rec)text='📖 '+rec.msg;
+  else if(tab==='exercise'&&rec)text='💪 '+rec.msg;
+  else if(tab==='book'&&rec)text='📚 '+rec.msgs.join('\n');
+  else if(tab==='brain'&&rec)text='💡 '+rec.msg;
+  else text='기록이 없는 날입니다.';
+  detail.style.whiteSpace='pre-line';
+  detail.textContent=text;
+  detail.classList.add('visible');
+  renderCal(tab);
+}
+
+function changeMonth(tab,dir){
+  calState[tab].m+=dir;
+  if(calState[tab].m>11){calState[tab].m=0;calState[tab].y++;}
+  if(calState[tab].m<0){calState[tab].m=11;calState[tab].y--;}
+  calState[tab].selected=null;
+  var detail=document.getElementById(tab+'-detail');
+  if(detail)detail.classList.remove('visible');
+  renderCal(tab);
+}
+
+function openNews(type){
+  var p={
+    morning:'오늘 아침 기준으로 다음 분야의 최신 뉴스를 각각 원본 출처 링크와 함께 제목 및 5줄 요약으로 정리해줘:\n1. 한국 부동산 및 경제 (금리, 대출 관련)\n2. 해외 (특히 미국) 반도체 및 기술주 관련\n중복 이슈는 (리마인드) 표시해줘.',
+    evening:'오늘 저녁 기준으로 다음 분야의 최신 뉴스를 각각 원본 출처 링크와 함께 제목 및 5줄 요약으로 정리해줘:\n1. 한국 부동산 및 경제 (금리, 대출 관련)\n2. 해외 (특히 미국) 반도체 및 기술주 관련\n오전과 중복되는 이슈는 옆에 (리마인드) 붙여서 다시 요약해줘.'
+  };
+  window.open('https://claude.ai/new?q='+encodeURIComponent(p[type]),'_blank');
+}
+
+setDate();
+initBibleSelects();
+TABS.forEach(function(t){renderCal(t);});
+</script>
+</body>
+</html>
