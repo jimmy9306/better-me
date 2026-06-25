@@ -564,7 +564,10 @@ function renderBrainEntries(){
     html+='<div class="brain-entry-body-inner">';
     html+=escHtml(h.idea||'');
     if(isToday){
-      html+='<br><button class="brain-edit-btn" onclick="editBrain(event,'+idx+')">✏️ 수정</button>';
+      html+='<br><button class="brain-edit-btn" onclick="editBrain(event,\''+h.id+'\')">✏️ 수정</button>';
+      html+=' <button class="brain-edit-btn" style="color:#e05c5c;border-color:#e05c5c;margin-left:6px" onclick="deleteBrain(event,\''+h.id+'\')">🗑 제거</button>';
+    } else {
+      html+='<br><button class="brain-edit-btn" style="color:#e05c5c;border-color:#e05c5c" onclick="deleteBrain(event,\''+h.id+'\')">🗑 제거</button>';
     }
     html+='</div></div></div>';
   });
@@ -588,16 +591,27 @@ function toggleBrainEntry(idx){
     document.getElementById('brain-idea').value='';
   }
 }
-function editBrain(e,idx){
+function editBrain(e,id){
   e.stopPropagation();
   var hist=ld('brain_hist',[]);
-  var rec=hist[idx];
+  var rec=hist.find(function(h){return h.id===id;});
   if(!rec)return;
   var titleEl=document.getElementById('brain-title');
   titleEl.value=rec.title||'';
-  titleEl.setAttribute('data-editing-id',rec.id||rec.date);
+  titleEl.setAttribute('data-editing-id',id);
   document.getElementById('brain-idea').value=rec.idea||'';
   window.scrollTo(0,0);
+}
+function deleteBrain(e,id){
+  e.stopPropagation();
+  showPopup('이 아이디어를 제거하시겠습니까?',function(yes){
+    if(!yes)return;
+    var hist=ld('brain_hist',[]);
+    hist=hist.filter(function(h){return h.id!==id;});
+    sv('brain_hist',hist);
+    renderCalOnly('brain');
+    renderBrainEntries();
+  });
 }
 
 /* ── 달력 ── */
