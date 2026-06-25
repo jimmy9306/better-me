@@ -154,11 +154,28 @@ select{flex:1;border:0.5px solid #c6c6c8;border-radius:8px;padding:8px;font-size
   <div class="section" id="sec-exercise">
     <div class="card">
       <div class="card-title"><i class="ti ti-run"></i> 오늘의 운동</div>
-      <div class="row"><div class="label">가슴</div><input type="checkbox" id="ex-chest"></div>
-      <div class="row"><div class="label">등</div><input type="checkbox" id="ex-back"></div>
-      <div class="row"><div class="label">어깨</div><input type="checkbox" id="ex-shoulder"></div>
-      <div class="row"><div class="label">하체</div><input type="checkbox" id="ex-leg"></div>
-      <div class="row"><div class="label">유산소</div><input type="checkbox" id="ex-cardio"></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+        <div style="text-align:center;flex:1" id="ex-item-chest">
+          <div style="font-size:13px;color:#000;margin-bottom:6px">가슴</div>
+          <input type="checkbox" id="ex-chest" style="width:22px;height:22px;accent-color:#333">
+        </div>
+        <div style="text-align:center;flex:1" id="ex-item-back">
+          <div style="font-size:13px;color:#000;margin-bottom:6px">등</div>
+          <input type="checkbox" id="ex-back" style="width:22px;height:22px;accent-color:#333">
+        </div>
+        <div style="text-align:center;flex:1" id="ex-item-shoulder">
+          <div style="font-size:13px;color:#000;margin-bottom:6px">어깨</div>
+          <input type="checkbox" id="ex-shoulder" style="width:22px;height:22px;accent-color:#333">
+        </div>
+        <div style="text-align:center;flex:1" id="ex-item-leg">
+          <div style="font-size:13px;color:#000;margin-bottom:6px">하체</div>
+          <input type="checkbox" id="ex-leg" style="width:22px;height:22px;accent-color:#333">
+        </div>
+        <div style="text-align:center;flex:1" id="ex-item-cardio">
+          <div style="font-size:13px;color:#000;margin-bottom:6px">유산소</div>
+          <input type="checkbox" id="ex-cardio" style="width:22px;height:22px;accent-color:#333">
+        </div>
+      </div>
       <button class="btn btn-primary btn-full" onclick="saveExercise()">운동 완료</button>
     </div>
     <div class="card">
@@ -523,23 +540,40 @@ function addStep(step){
 function saveBrain(){
   var titleVal=document.getElementById('brain-title').value.trim();
   var idea=document.getElementById('brain-idea').value.trim();
-  if(!idea){alert('내용을 입력하세요');return;}
+  var titleEl=document.getElementById('brain-title');
+  var ideaEl=document.getElementById('brain-idea');
+  // 테두리 초기화
+  titleEl.style.borderColor='';
+  ideaEl.style.borderColor='';
+  if(!titleVal){
+    titleEl.style.borderColor='#e05c5c';
+    alert('제목을 입력해주세요!');
+    titleEl.focus();
+    return;
+  }
+  if(!idea){
+    ideaEl.style.borderColor='#e05c5c';
+    alert('내용을 입력하여주세요!');
+    ideaEl.focus();
+    return;
+  }
   var today=todayStr();
   var hist=ld('brain_hist',[]);
-  var title=titleVal||(idea.split('\n')[0].substring(0,30)+(idea.split('\n')[0].length>30?'...':''));
-  // 수정 중인 항목 id가 있으면 해당 항목만 덮어쓰기, 없으면 항상 새로 추가
-  var editingId=document.getElementById('brain-title').getAttribute('data-editing-id');
+  var title=titleVal;
+  var editingId=titleEl.getAttribute('data-editing-id');
   if(editingId){
     var ex=hist.findIndex(function(h){return h.id===editingId;});
     if(ex>=0){hist[ex]={id:editingId,date:hist[ex].date,title:title,idea:idea};}
-    document.getElementById('brain-title').removeAttribute('data-editing-id');
+    titleEl.removeAttribute('data-editing-id');
   } else {
     var newId=today+'-'+Date.now();
     hist.unshift({id:newId,date:today,title:title,idea:idea});
   }
   sv('brain_hist',hist.slice(0,365));
-  document.getElementById('brain-title').value='';
-  document.getElementById('brain-idea').value='';
+  titleEl.value='';
+  ideaEl.value='';
+  titleEl.style.borderColor='';
+  ideaEl.style.borderColor='';
   renderCalOnly('brain');
   renderBrainEntries();
   alert('저장됐습니다 ✓');
