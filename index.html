@@ -26,13 +26,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .row:last-child{margin-bottom:0}
 .label{font-size:14px;color:#000}
-.sub{font-size:12px;color:#8e8e93;margin-top:2px}
 input[type=checkbox]{width:22px;height:22px;cursor:pointer;accent-color:#333}
 .btn{border:0.5px solid #c6c6c8;border-radius:8px;padding:8px 14px;font-size:13px;background:#fff;color:#000;cursor:pointer;font-family:inherit}
 .btn:active{transform:scale(0.98)}
 .btn-primary{background:#000;color:#fff;border-color:#000}
 .btn-full{width:100%;padding:12px;font-size:14px;margin-top:8px}
-.btn-disabled{opacity:0.35;cursor:not-allowed !important;pointer-events:none}
 .timer-display{font-size:36px;font-weight:500;text-align:center;padding:12px 0;letter-spacing:2px;color:#000}
 textarea{width:100%;border:0.5px solid #c6c6c8;border-radius:8px;padding:10px 12px;font-size:14px;font-family:inherit;background:#fff;color:#000;resize:none;line-height:1.7}
 .yt-link{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid #c6c6c8;text-decoration:none;color:#000}
@@ -50,14 +48,10 @@ select{flex:1;border:0.5px solid #c6c6c8;border-radius:8px;padding:8px;font-size
 .new-book-form{background:#f2f2f7;border-radius:10px;padding:14px;margin-top:10px;display:none}
 .new-book-form.visible{display:block}
 .new-book-form input{width:100%;border:0.5px solid #c6c6c8;border-radius:8px;padding:9px 12px;font-size:14px;font-family:inherit;background:#fff;color:#000;margin-bottom:8px}
-
-/* 책 선택 후 info 박스 */
 .book-info-box{background:#f2f2f7;border-radius:10px;padding:12px 14px;margin-top:10px;display:none}
 .book-info-box.visible{display:block}
 .book-info-title{font-size:15px;font-weight:600;color:#000;margin-bottom:2px}
 .book-info-author{font-size:12px;color:#8e8e93;margin-bottom:12px}
-
-/* 타이머 섹션 */
 .timer-section{display:none;margin-top:4px}
 .timer-section.visible{display:block}
 
@@ -81,7 +75,32 @@ select{flex:1;border:0.5px solid #c6c6c8;border-radius:8px;padding:8px;font-size
 .cal-cell.other-month{opacity:0.2}
 .day-detail{background:#f2f2f7;border-radius:8px;padding:12px 14px;margin-top:12px;font-size:13px;color:#000;line-height:1.7;display:none;border-left:3px solid #c6c6c8;white-space:pre-line}
 .day-detail.visible{display:block}
-.brain-step-btns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+
+/* 커스텀 팝업 */
+.popup-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:100;display:none;align-items:center;justify-content:center}
+.popup-overlay.visible{display:flex}
+.popup-box{background:#fff;border-radius:14px;padding:24px 20px 16px;width:280px;text-align:center}
+.popup-msg{font-size:14px;color:#000;line-height:1.6;margin-bottom:20px}
+.popup-btns{display:flex;gap:8px}
+.popup-btns button{flex:1;padding:11px;border-radius:8px;font-size:14px;font-family:inherit;cursor:pointer;border:0.5px solid #c6c6c8}
+.popup-yes{background:#000;color:#fff;border-color:#000}
+.popup-no{background:#fff;color:#000}
+
+/* 브레인 */
+.brain-entry{background:#f2f2f7;border-radius:10px;margin-bottom:8px;overflow:hidden}
+.brain-entry-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer}
+.brain-entry-meta{flex:1}
+.brain-entry-date{font-size:11px;color:#8e8e93;margin-bottom:2px}
+.brain-entry-title{font-size:14px;font-weight:500;color:#000}
+.brain-entry-arrow{font-size:16px;color:#8e8e93;transition:transform 0.25s;display:inline-block}
+.brain-entry-arrow.open{transform:rotate(90deg)}
+.brain-entry-body{max-height:0;overflow:hidden;transition:max-height 0.3s ease;background:#fff;font-size:13px;color:#444;white-space:pre-line;line-height:1.6}
+.brain-entry-body.visible{max-height:600px}
+.brain-entry-body-inner{padding:12px 14px 14px}
+.brain-edit-btn{font-size:12px;color:#007aff;border:0.5px solid #007aff;background:transparent;cursor:pointer;padding:5px 12px;font-family:inherit;margin-top:10px;border-radius:6px;display:inline-block}
+.brain-edit-btn{font-size:12px;color:#007aff;border:0.5px solid #007aff;background:transparent;cursor:pointer;padding:5px 12px;font-family:inherit;margin-top:10px;border-radius:6px}
+.brain-empty{text-align:center;color:#8e8e93;font-size:14px;padding:20px 0}
+.step-btns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;margin-top:4px}
 </style>
 </head>
 <body>
@@ -89,6 +108,17 @@ select{flex:1;border:0.5px solid #c6c6c8;border-radius:8px;padding:8px;font-size
   <div class="header">
     <h1>더 나은 나</h1>
     <div class="date" id="today-date"></div>
+  </div>
+
+  <!-- 커스텀 팝업 -->
+  <div class="popup-overlay" id="popup-overlay">
+    <div class="popup-box">
+      <div class="popup-msg" id="popup-msg"></div>
+      <div class="popup-btns">
+        <button class="popup-no" onclick="popupAnswer(false)">아니오</button>
+        <button class="popup-yes" onclick="popupAnswer(true)">예</button>
+      </div>
+    </div>
   </div>
 
   <!-- 성경 -->
@@ -147,14 +177,11 @@ select{flex:1;border:0.5px solid #c6c6c8;border-radius:8px;padding:8px;font-size
   <div class="section" id="sec-book">
     <div class="card">
       <div class="card-title"><i class="ti ti-book-2"></i> 독서 타이머</div>
-
       <div class="select-label" style="margin-bottom:6px">📚 읽을 책 선택</div>
       <select id="book-select" style="width:100%" onchange="onBookSelect()">
         <option value="">— 책을 선택하세요 —</option>
       </select>
-
       <button class="btn" style="width:100%;margin-top:8px;color:#007aff;border-color:#007aff" onclick="toggleNewBookForm()">+ 새로운 책</button>
-
       <div class="new-book-form" id="new-book-form">
         <input type="text" id="new-book-title" placeholder="책 제목">
         <input type="text" id="new-book-author" placeholder="저자" style="margin-top:8px">
@@ -163,8 +190,6 @@ select{flex:1;border:0.5px solid #c6c6c8;border-radius:8px;padding:8px;font-size
           <button class="btn btn-primary" style="flex:1" onclick="addNewBook()">완료</button>
         </div>
       </div>
-
-      <!-- 책 선택 후 표시되는 info + 버튼 -->
       <div class="book-info-box" id="book-info-box">
         <div class="book-info-title" id="book-info-title"></div>
         <div class="book-info-author" id="book-info-author"></div>
@@ -173,8 +198,6 @@ select{flex:1;border:0.5px solid #c6c6c8;border-radius:8px;padding:8px;font-size
           <button class="btn btn-primary" style="flex:1" onclick="finishBookComplete()">완독했어요</button>
         </div>
       </div>
-
-      <!-- 타이머 섹션 (이어서 읽기 눌러야 활성화) -->
       <div class="timer-section" id="timer-section">
         <div class="divider"></div>
         <div class="timer-display" id="timer-display">00:00:00</div>
@@ -183,7 +206,6 @@ select{flex:1;border:0.5px solid #c6c6c8;border-radius:8px;padding:8px;font-size
           <button class="btn btn-full" onclick="finishReading()" style="flex:1;background:#f2f2f7">다 읽었어요</button>
         </div>
       </div>
-
     </div>
     <div class="card">
       <div class="card-title"><i class="ti ti-calendar"></i> 기록</div>
@@ -199,26 +221,33 @@ select{flex:1;border:0.5px solid #c6c6c8;border-radius:8px;padding:8px;font-size
 
   <!-- 브레인 -->
   <div class="section" id="sec-brain">
+    <!-- 기록 목록 (상단) -->
+    <div class="card">
+      <div class="card-title"><i class="ti ti-list"></i> 저장된 아이디어</div>
+      <div id="brain-entries"></div>
+    </div>
+    <!-- 입력 카드 -->
     <div class="card">
       <div class="card-title"><i class="ti ti-bulb"></i> 오늘의 브레인스토밍</div>
-      <div style="margin-bottom:12px">
-        <div class="label" style="font-size:13px;margin-bottom:6px">아이디어 / 주제</div>
-        <textarea id="brain-idea" rows="6" placeholder="오늘 떠오른 아이디어를 적어보세요"></textarea>
+      <div style="margin-bottom:10px">
+        <div class="label" style="font-size:13px;margin-bottom:6px">제목</div>
+        <input type="text" id="brain-title" placeholder="아이디어 제목을 입력하세요" style="width:100%;border:0.5px solid #c6c6c8;border-radius:8px;padding:9px 12px;font-size:14px;font-family:inherit;background:#fff;color:#000">
       </div>
-      <div style="margin-bottom:12px">
-        <div class="label" style="font-size:13px;margin-bottom:6px">진행 단계</div>
-        <div class="brain-step-btns">
+      <div style="margin-bottom:8px">
+        <div class="label" style="font-size:13px;margin-bottom:6px">아이디어 / 주제</div>
+        <div class="step-btns">
           <button class="btn" onclick="addStep('리서치')" style="font-size:12px;padding:4px 10px">+ 리서치</button>
           <button class="btn" onclick="addStep('기획')" style="font-size:12px;padding:4px 10px">+ 기획</button>
           <button class="btn" onclick="addStep('실행')" style="font-size:12px;padding:4px 10px">+ 실행</button>
           <button class="btn" onclick="addStep('검토')" style="font-size:12px;padding:4px 10px">+ 검토</button>
         </div>
-        <textarea id="brain-steps" rows="5" placeholder="어떤 단계를 거쳤나요?"></textarea>
+        <textarea id="brain-idea" rows="7" placeholder="오늘 떠오른 아이디어를 적어보세요"></textarea>
       </div>
       <button class="btn btn-primary btn-full" onclick="saveBrain()">기록 저장</button>
     </div>
+    <!-- 달력 -->
     <div class="card">
-      <div class="card-title"><i class="ti ti-calendar"></i> 기록</div>
+      <div class="card-title"><i class="ti ti-calendar"></i> 달력</div>
       <div class="cal-nav">
         <button onclick="changeMonth('brain',-1)">‹</button>
         <span id="brain-cal-label"></span>
@@ -291,19 +320,34 @@ var TABS=['bible','exercise','book','brain'];
 var calState={};
 TABS.forEach(function(t){var n=new Date();calState[t]={y:n.getFullYear(),m:n.getMonth(),selected:null};});
 var timerInterval=null,timerSec=0,timerRunning=false;
-var currentBook=null; // {title, author}
+var currentBook=null;
+var popupCallback=null;
 
 function getKey(k){return 'betterme_'+k;}
 function sv(k,v){try{localStorage.setItem(getKey(k),JSON.stringify(v));}catch(e){}}
 function ld(k,def){try{var v=localStorage.getItem(getKey(k));return v?JSON.parse(v):def;}catch(e){return def;}}
 function todayStr(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function fmtTime(s){var h=Math.floor(s/3600);var m=Math.floor((s%3600)/60);var sc=s%60;return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(sc).padStart(2,'0');}
+function fmtDateKr(dateStr){var p=dateStr.split('-');return p[0]+'년 '+parseInt(p[1])+'월 '+parseInt(p[2])+'일';}
+
+/* ── 팝업 ── */
+function showPopup(msg,cb){
+  document.getElementById('popup-msg').textContent=msg;
+  document.getElementById('popup-overlay').classList.add('visible');
+  popupCallback=cb;
+}
+function popupAnswer(yes){
+  document.getElementById('popup-overlay').classList.remove('visible');
+  if(popupCallback)popupCallback(yes);
+  popupCallback=null;
+}
 
 function showSection(id,btn){
   document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});
   document.querySelectorAll('.nav button').forEach(function(b){b.classList.remove('active');});
   document.getElementById('sec-'+id).classList.add('active');
   btn.classList.add('active');
+  if(id==='brain')renderBrainEntries();
 }
 function setDate(){
   var d=new Date();var days=['일','월','화','수','목','금','토'];
@@ -336,15 +380,45 @@ function saveBiblePos(){
   var toBook=document.getElementById('bible-to-book').value;
   var toChap=document.getElementById('bible-to-chap').value;
   var today=todayStr();var dayNum=new Date().getDate();
-  sv('bible_pos',{fromBook:fromBook,fromChap:fromChap,toBook:toBook,toChap:toChap});
   var hist=ld('bible_hist',[]);
-  var msg=dayNum+'일은 '+fromBook+' '+fromChap+'장부터 '+toBook+' '+toChap+'장까지 읽었어요!';
-  var rec={date:today,done:true,msg:msg};
   var ex=hist.findIndex(function(h){return h.date===today;});
-  if(ex>=0)hist[ex]=rec;else hist.unshift(rec);
-  sv('bible_hist',hist.slice(0,365));
-  renderCalOnly('bible');
-  alert('저장됐습니다 ✓');
+  function doSave(){
+    sv('bible_pos',{fromBook:fromBook,fromChap:fromChap,toBook:toBook,toChap:toChap});
+    var msg=dayNum+'일은 '+fromBook+' '+fromChap+'장부터 '+toBook+' '+toChap+'장까지 읽었어요!';
+    var rec={date:today,done:true,msg:msg};
+    if(ex>=0)hist[ex]=rec;else hist.unshift(rec);
+    sv('bible_hist',hist.slice(0,365));
+    renderCalOnly('bible');
+    alert('저장됐습니다 ✓');
+  }
+  if(ex>=0){
+    showPopup('이전 내용을 지우고 다시 덮어쓰시겠습니까?',function(yes){if(yes)doSave();});
+  } else {
+    doSave();
+  }
+}
+
+/* ── 운동 ── */
+function saveExercise(){
+  var done=EX_LIST.filter(function(e){return document.getElementById('ex-'+e.id).checked;}).map(function(e){return e.label;});
+  if(!done.length){alert('운동 항목을 하나 이상 체크해주세요');return;}
+  var today=todayStr();var dayNum=new Date().getDate();
+  var hist=ld('exercise_hist',[]);
+  var ex=hist.findIndex(function(h){return h.date===today;});
+  function doSave(){
+    var msg=dayNum+'일 운동: '+done.join(', ')+'을(를) 했어요!';
+    var rec={date:today,done:true,list:done,msg:msg};
+    if(ex>=0)hist[ex]=rec;else hist.unshift(rec);
+    sv('exercise_hist',hist.slice(0,365));
+    EX_LIST.forEach(function(e){document.getElementById('ex-'+e.id).checked=false;});
+    renderCalOnly('exercise');
+    alert('운동 완료 ✓');
+  }
+  if(ex>=0){
+    showPopup('이전 내용을 지우고 다시 덮어쓰시겠습니까?',function(yes){if(yes)doSave();});
+  } else {
+    doSave();
+  }
 }
 
 /* ── 독서 ── */
@@ -354,30 +428,22 @@ function loadBookList(){
   sel.innerHTML='<option value="">— 책을 선택하세요 —</option>';
   books.forEach(function(b){
     var opt=document.createElement('option');
-    opt.value=b.title;
-    opt.textContent=b.title+(b.author?' · '+b.author:'');
+    opt.value=b.title;opt.textContent=b.title+(b.author?' · '+b.author:'');
     sel.appendChild(opt);
   });
 }
 function onBookSelect(){
   var sel=document.getElementById('book-select');
   var infoBox=document.getElementById('book-info-box');
-  var timerSec2=document.getElementById('timer-section');
-  if(!sel.value){
-    infoBox.classList.remove('visible');
-    timerSec2.classList.remove('visible');
-    currentBook=null;
-    return;
-  }
+  var ts=document.getElementById('timer-section');
+  if(!sel.value){infoBox.classList.remove('visible');ts.classList.remove('visible');currentBook=null;return;}
   var books=ld('book_list',[]);
   var found=books.find(function(b){return b.title===sel.value;});
   currentBook=found||{title:sel.value,author:''};
   document.getElementById('book-info-title').textContent=currentBook.title;
   document.getElementById('book-info-author').textContent=currentBook.author?'저자: '+currentBook.author:'';
   infoBox.classList.add('visible');
-  // 타이머 섹션은 닫기 (이어서 읽기 눌러야 열림)
-  timerSec2.classList.remove('visible');
-  // 타이머 초기화
+  ts.classList.remove('visible');
   clearInterval(timerInterval);timerRunning=false;timerSec=0;
   document.getElementById('timer-display').textContent='00:00:00';
   document.getElementById('timer-btn').textContent='계속';
@@ -385,10 +451,7 @@ function onBookSelect(){
 function toggleNewBookForm(){
   var form=document.getElementById('new-book-form');
   form.classList.toggle('visible');
-  if(form.classList.contains('visible')){
-    document.getElementById('new-book-title').value='';
-    document.getElementById('new-book-author').value='';
-  }
+  if(form.classList.contains('visible')){document.getElementById('new-book-title').value='';document.getElementById('new-book-author').value='';}
 }
 function addNewBook(){
   var title=document.getElementById('new-book-title').value.trim();
@@ -397,105 +460,144 @@ function addNewBook(){
   var books=ld('book_list',[]);
   if(books.find(function(b){return b.title===title;})){alert('이미 추가된 책입니다');return;}
   books.push({title:title,author:author});
-  sv('book_list',books);
-  loadBookList();
-  document.getElementById('book-select').value=title;
-  onBookSelect();
+  sv('book_list',books);loadBookList();
+  document.getElementById('book-select').value=title;onBookSelect();
   toggleNewBookForm();
 }
-
 function startReading(){
   if(!currentBook)return;
-  var ts=document.getElementById('timer-section');
-  ts.classList.add('visible');
-  // 타이머 자동 시작
-  clearInterval(timerInterval);
-  timerRunning=true;
+  document.getElementById('timer-section').classList.add('visible');
+  clearInterval(timerInterval);timerRunning=true;
   document.getElementById('timer-btn').textContent='일시정지';
   timerInterval=setInterval(function(){timerSec++;document.getElementById('timer-display').textContent=fmtTime(timerSec);},1000);
 }
-
 function toggleTimer(){
   var btn=document.getElementById('timer-btn');
-  if(timerRunning){
-    timerRunning=false;btn.textContent='계속';clearInterval(timerInterval);
-  } else {
-    timerRunning=true;btn.textContent='일시정지';
-    timerInterval=setInterval(function(){timerSec++;document.getElementById('timer-display').textContent=fmtTime(timerSec);},1000);
-  }
+  if(timerRunning){timerRunning=false;btn.textContent='계속';clearInterval(timerInterval);}
+  else{timerRunning=true;btn.textContent='일시정지';timerInterval=setInterval(function(){timerSec++;document.getElementById('timer-display').textContent=fmtTime(timerSec);},1000);}
 }
-
 function finishReading(){
   if(!currentBook){alert('책을 선택하세요');return;}
   clearInterval(timerInterval);timerRunning=false;
-  var mins=Math.floor(timerSec/60);
   var today=todayStr();var dayNum=new Date().getDate();
-  var msg=dayNum+'일은 「'+currentBook.title+'」'+(currentBook.author?' ('+currentBook.author+')':'')+'을(를) 읽었어요!'+(mins?' ('+mins+'분)':'');
-  saveBookRecord(today,msg);
-  timerSec=0;
-  document.getElementById('timer-display').textContent='00:00:00';
+  var hist=ld('book_hist',[]);
+  var ex=hist.findIndex(function(h){return h.date===today&&h.title===currentBook.title;});
+  var addedSec=timerSec;
+  var totalSec=addedSec;
+  if(ex>=0)totalSec=(hist[ex].time||0)+addedSec;
+  var mins=Math.floor(totalSec/60);
+  var msg='📚 '+dayNum+'일은 「'+currentBook.title+'」'+(currentBook.author?' ('+currentBook.author+')':'')+'을(를) 읽었어요! (누적 '+mins+'분)';
+  var rec={date:today,title:currentBook.title,author:currentBook.author||'',time:totalSec,msg:msg};
+  if(ex>=0)hist[ex]=rec;else hist.unshift(rec);
+  sv('book_hist',hist.slice(0,365));
+  timerSec=0;document.getElementById('timer-display').textContent='00:00:00';
   document.getElementById('timer-btn').textContent='계속';
   document.getElementById('timer-section').classList.remove('visible');
   renderCalOnly('book');
   alert('독서 기록 완료 ✓');
 }
-
 function finishBookComplete(){
   if(!currentBook)return;
   var today=todayStr();var dayNum=new Date().getDate();
+  var hist=ld('book_hist',[]);
   var msg='📕 '+dayNum+'일, 「'+currentBook.title+'」'+(currentBook.author?' / '+currentBook.author:'')+'  완독했어요!';
-  saveBookRecord(today,msg);
+  var rec={date:today,title:currentBook.title,author:currentBook.author||'',time:timerSec,msg:msg};
+  var ex=hist.findIndex(function(h){return h.date===today&&h.title===currentBook.title;});
+  if(ex>=0)hist[ex]=rec;else hist.unshift(rec);
+  sv('book_hist',hist.slice(0,365));
   clearInterval(timerInterval);timerRunning=false;timerSec=0;
   document.getElementById('timer-display').textContent='00:00:00';
   document.getElementById('timer-section').classList.remove('visible');
   document.getElementById('book-info-box').classList.remove('visible');
-  document.getElementById('book-select').value='';
-  currentBook=null;
+  document.getElementById('book-select').value='';currentBook=null;
   renderCalOnly('book');
   alert('완독을 축하드립니다 🎉');
 }
 
-function saveBookRecord(today,msg){
-  var hist=ld('book_hist',[]);
-  var ex=hist.findIndex(function(h){return h.date===today&&h.title===currentBook.title;});
-  var rec={date:today,title:currentBook.title,author:currentBook.author,time:timerSec,msg:msg};
-  if(ex>=0)hist[ex]=rec;else hist.unshift(rec);
-  sv('book_hist',hist.slice(0,365));
-}
-
-/* ── 운동 ── */
-function saveExercise(){
-  var done=EX_LIST.filter(function(e){return document.getElementById('ex-'+e.id).checked;}).map(function(e){return e.label;});
-  if(!done.length){alert('운동 항목을 하나 이상 체크해주세요');return;}
-  var today=todayStr();var dayNum=new Date().getDate();
-  var hist=ld('exercise_hist',[]);
-  var msg=dayNum+'일 운동: '+done.join(', ')+'을(를) 했어요!';
-  var rec={date:today,done:true,list:done,msg:msg};
-  var ex=hist.findIndex(function(h){return h.date===today;});
-  if(ex>=0)hist[ex]=rec;else hist.unshift(rec);
-  sv('exercise_hist',hist.slice(0,365));
-  EX_LIST.forEach(function(e){document.getElementById('ex-'+e.id).checked=false;});
-  renderCalOnly('exercise');
-  alert('운동 완료 ✓');
-}
-
 /* ── 브레인 ── */
-function addStep(step){var ta=document.getElementById('brain-steps');ta.value=(ta.value?ta.value+' → ':'')+step;}
+function addStep(step){
+  var ta=document.getElementById('brain-idea');
+  ta.value=(ta.value?ta.value+'\n':'')+step+': ';
+  ta.focus();
+}
 function saveBrain(){
+  var titleVal=document.getElementById('brain-title').value.trim();
   var idea=document.getElementById('brain-idea').value.trim();
-  if(!idea){alert('아이디어를 입력하세요');return;}
-  var steps=document.getElementById('brain-steps').value.trim();
-  var today=todayStr();var dayNum=new Date().getDate();
+  if(!idea){alert('내용을 입력하세요');return;}
+  var today=todayStr();
   var hist=ld('brain_hist',[]);
-  var msg=dayNum+'일 아이디어: '+idea+(steps?' ['+steps+']':'');
-  var rec={date:today,idea:idea,steps:steps,msg:msg};
-  var ex=hist.findIndex(function(h){return h.date===today;});
-  if(ex>=0)hist[ex]=rec;else hist.unshift(rec);
+  var title=titleVal||(idea.split('\n')[0].substring(0,30)+(idea.split('\n')[0].length>30?'...':''));
+  // 수정 중인 항목 id가 있으면 해당 항목만 덮어쓰기, 없으면 항상 새로 추가
+  var editingId=document.getElementById('brain-title').getAttribute('data-editing-id');
+  if(editingId){
+    var ex=hist.findIndex(function(h){return h.id===editingId;});
+    if(ex>=0){hist[ex]={id:editingId,date:hist[ex].date,title:title,idea:idea};}
+    document.getElementById('brain-title').removeAttribute('data-editing-id');
+  } else {
+    var newId=today+'-'+Date.now();
+    hist.unshift({id:newId,date:today,title:title,idea:idea});
+  }
   sv('brain_hist',hist.slice(0,365));
+  document.getElementById('brain-title').value='';
   document.getElementById('brain-idea').value='';
-  document.getElementById('brain-steps').value='';
   renderCalOnly('brain');
+  renderBrainEntries();
   alert('저장됐습니다 ✓');
+}
+function renderBrainEntries(){
+  var hist=ld('brain_hist',[]);
+  var el=document.getElementById('brain-entries');
+  var today=todayStr();
+  if(!hist.length){el.innerHTML='<div class="brain-empty">내용이 없어요!</div>';return;}
+  var html='';
+  hist.slice(0,30).forEach(function(h,idx){
+    var isToday=(h.date===today);
+    html+='<div class="brain-entry">';
+    html+='<div class="brain-entry-header" onclick="toggleBrainEntry('+idx+')">';
+    html+='<div class="brain-entry-meta">';
+    html+='<div class="brain-entry-date">'+fmtDateKr(h.date)+'</div>';
+    html+='<div class="brain-entry-title">'+escHtml(h.title||'(제목없음)')+'</div>';
+    html+='</div>';
+    html+='<span class="brain-entry-arrow" id="brain-arrow-'+idx+'">›</span>';
+    html+='</div>';
+    html+='<div class="brain-entry-body" id="brain-body-'+idx+'">';
+    html+='<div class="brain-entry-body-inner">';
+    html+=escHtml(h.idea||'');
+    if(isToday){
+      html+='<br><button class="brain-edit-btn" onclick="editBrain(event,'+idx+')">✏️ 수정</button>';
+    }
+    html+='</div></div></div>';
+  });
+  el.innerHTML=html;
+}
+function escHtml(s){if(!s)return '';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function toggleBrainEntry(idx){
+  var body=document.getElementById('brain-body-'+idx);
+  var arrow=document.getElementById('brain-arrow-'+idx);
+  var isOpen=body.classList.contains('visible');
+  document.querySelectorAll('.brain-entry-body').forEach(function(b){b.classList.remove('visible');});
+  document.querySelectorAll('.brain-entry-arrow').forEach(function(a){a.classList.remove('open');});
+  if(!isOpen){
+    body.classList.add('visible');
+    if(arrow)arrow.classList.add('open');
+  } else {
+    // 닫을 때 입력란 초기화
+    var titleEl=document.getElementById('brain-title');
+    titleEl.value='';
+    titleEl.removeAttribute('data-editing-id');
+    document.getElementById('brain-idea').value='';
+  }
+}
+function editBrain(e,idx){
+  e.stopPropagation();
+  var hist=ld('brain_hist',[]);
+  var rec=hist[idx];
+  if(!rec)return;
+  var titleEl=document.getElementById('brain-title');
+  titleEl.value=rec.title||'';
+  titleEl.setAttribute('data-editing-id',rec.id||rec.date);
+  document.getElementById('brain-idea').value=rec.idea||'';
+  window.scrollTo(0,0);
 }
 
 /* ── 달력 ── */
@@ -540,10 +642,8 @@ function renderCalOnly(tab){
     if(hasDone){mark='✓';markColor='color:#27500A';}
     else if(isPast){mark='✗';markColor='color:#e05c5c';}
     var cls='cal-cell';
-    if(dow===0)cls+=' sun';
-    if(dow===6)cls+=' sat';
-    if(isToday)cls+=' today';
-    if(isSelected)cls+=' selected';
+    if(dow===0)cls+=' sun';if(dow===6)cls+=' sat';
+    if(isToday)cls+=' today';if(isSelected)cls+=' selected';
     var clickAttr=hasDone?'onclick="showDayDetail(\''+tab+'\',\''+dateStr+'\')"':'';
     html+='<div class="'+cls+'" '+clickAttr+'><span class="day-num">'+d+'</span><span class="day-mark" style="'+markColor+'">'+mark+'</span></div>';
   }
@@ -555,6 +655,27 @@ function renderCalOnly(tab){
 }
 function showDayDetail(tab,dateStr){
   calState[tab].selected=dateStr;
+  if(tab==='brain'){
+    var brainHist=ld('brain_hist',[]);
+    var dayCount=brainHist.filter(function(h){return h.date===dateStr;}).length;
+    var dayNum2=parseInt(dateStr.split('-')[2]);
+    var detailEl=document.getElementById('brain-detail');
+    if(!detailEl){
+      var d2=document.createElement('div');
+      d2.id='brain-detail';
+      d2.className='day-detail';
+      document.getElementById('brain-cal').parentNode.appendChild(d2);
+    }
+    detailEl=document.getElementById('brain-detail');
+    if(dayCount>0){
+      detailEl.textContent='💡 '+dayNum2+'일은 '+dayCount+'개의 생각이 있어요!';
+    } else {
+      detailEl.textContent='기록이 없는 날입니다.';
+    }
+    detailEl.classList.add('visible');
+    renderCalOnly(tab);
+    return;
+  }
   var detail=document.getElementById(tab+'-detail');
   var doneMap=getDoneMap(tab);
   var rec=doneMap[dateStr];
@@ -562,10 +683,8 @@ function showDayDetail(tab,dateStr){
   if(tab==='bible'&&rec)text='📖 '+rec.msg;
   else if(tab==='exercise'&&rec)text='💪 '+rec.msg;
   else if(tab==='book'&&rec)text=rec.msgs.join('\n');
-  else if(tab==='brain'&&rec)text='💡 '+rec.msg;
   else text='기록이 없는 날입니다.';
-  detail.textContent=text;
-  detail.classList.add('visible');
+  detail.textContent=text;detail.classList.add('visible');
   renderCalOnly(tab);
 }
 function changeMonth(tab,dir){
@@ -573,7 +692,8 @@ function changeMonth(tab,dir){
   if(calState[tab].m>11){calState[tab].m=0;calState[tab].y++;}
   if(calState[tab].m<0){calState[tab].m=11;calState[tab].y--;}
   calState[tab].selected=null;
-  document.getElementById(tab+'-detail').classList.remove('visible');
+  var detail=document.getElementById(tab+'-detail');
+  if(detail)detail.classList.remove('visible');
   renderCalOnly(tab);
 }
 
@@ -590,6 +710,7 @@ setDate();
 initBibleSelects();
 loadBookList();
 TABS.forEach(function(t){renderCalOnly(t);});
+renderBrainEntries();
 </script>
 </body>
 </html>
